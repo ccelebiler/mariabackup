@@ -32,7 +32,10 @@ In the following example, compression and encryption are enabled:
 └── <full_n>/
 ```
 
-The backup folder names 
+The backup folder names have the following format:
+```
+<year>-<month>-<day>_<hour>-<minute>-<second>
+```
 
 ## Get started
 
