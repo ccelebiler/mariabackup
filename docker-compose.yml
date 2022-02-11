@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+  mariabackup:
+    build: ./build/mariabackup
+    image: mariabackup:10.6.5
+    container_name: mariabackup
+    env_file: .env
+    environment:
+      - MYSQL_HOST=mysql
+      - CRON_SCHED_FULL=0 4 * * 0
+      - CRON_SCHED_INCR=0 0 * * *
+      - BACKUP_IMMEDIATE=true
+      - BACKUP_COMPRESS=true
+      - BACKUP_ENCRYPT=true
+      - BACKUP_THREADS=4
+      - BACKUP_KEEP_DAYS=30
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - backup:/backup
+    logging:
+      driver: fluentd
+      options:
+        tag: '{{.DaemonName}}.{{.Name}}'
+    networks:
+      - app-network
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+  backup:
+
+networks:
+  app-network:
+    external: true
+    name: wordpress_app-network
