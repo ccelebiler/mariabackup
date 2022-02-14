@@ -56,6 +56,10 @@ class MariaDbBackup():
             return False, proc
         return True, proc
 
+    def __backup_dirs(self, root_dir):
+        prog = re.compile(self.__backup_name_pattern)
+        return (f for f in os.scandir(root_dir) if f.is_dir() and prog.match(f.name))
+
     def check_daemon(self):
         """
         Checks if the daemon is listening.
@@ -97,13 +101,11 @@ class MariaDbBackup():
             full_backup_dir = backup_dir if full else dirs[0]
             incr_backup_dir = None if full else backup_dir
         else:
-            full_backup_dirs = sorted(f.path for f in os.scandir(self.__backup_root_dir) if f.is_dir())
+            full_backup_dirs = sorted(f.path for f in self.__backup_dirs(self.__backup_root_dir))
             if not len(full_backup_dirs):
                 self.logger.error(f"No backup available.")
                 return False, None
-            prog = re.compile(self.__backup_name_pattern)
-            incr_backup_dirs = sorted(f.path for f in os.scandir(
-                full_backup_dirs[-1]) if f.is_dir() and prog.match(f.name))
+            incr_backup_dirs = sorted(f.path for f in self.__backup_dirs(full_backup_dirs[-1]))
             full = len(incr_backup_dirs) == 0
             full_backup_dir = full_backup_dirs[-1]
             incr_backup_dir = None if full else incr_backup_dirs[-1]
@@ -209,7 +211,7 @@ class MariaDbBackup():
         self.logger.debug(f"""- Mode: {"FULL" if full else "INCR"}""")
         if not full:
             # Find the latest full backup.
-            full_backup_dirs = sorted(f.path for f in os.scandir(self.__backup_root_dir) if f.is_dir())
+            full_backup_dirs = sorted(f.path for f in self.__backup_dirs(self.__backup_root_dir))
             if not len(full_backup_dirs):
                 self.logger.error(f"No full backup available.")
                 return False
@@ -259,25 +261,29 @@ class MariaDbBackup():
         """
         Purges backups that don't fall under the retention policy.
 
-        :return: Success status
+        :return: Number of purged backups
         """
         i = 0
+
         # Purge old backups.
         days = int(os.getenv("BACKUP_KEEP_DAYS", 0))
         self.logger.debug(f"- Retention policy (days): {days}")
         if days:
-            for path in (f.path for f in os.scandir(self.__backup_root_dir) if f.is_dir() and
-                         (datetime.now() - datetime.strptime(f.name, self.__backup_name_format)).days >= days):
+            backup_dirs = (f.path for f in self.__backup_dirs(self.__backup_root_dir)
+                           if (datetime.now() - datetime.strptime(f.name, self.__backup_name_format)).days >= days)
+            for path in backup_dirs:
                 shutil.rmtree(path, ignore_errors=True)
-                i += 1
+            i += len(backup_dirs)
 
         # Purge extra backups.
         n = int(os.getenv("BACKUP_KEEP_N", 0))
         self.logger.debug(f"- Retention policy (n): {n}")
         if n:
-            for path in sorted((f.path for f in os.scandir(self.__backup_root_dir) if f.is_dir()), reverse=True)[n:]:
+            backup_dirs = sorted((f.path for f in self.__backup_dirs(self.__backup_root_dir)), reverse=True)[n:]
+            for path in backup_dirs:
                 shutil.rmtree(path, ignore_errors=True)
-                i += 1
+            i += len(backup_dirs)
+
         return i
 
 
