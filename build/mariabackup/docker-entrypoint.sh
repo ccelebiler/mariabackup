@@ -22,7 +22,7 @@ _main() {
 
 	mkdir -p $CRON_DIR
 	echo "$CRON_SCHED_FULL $CRON_USER $BACKUP_CMD_FULL" > $CRON_FILE
-	[[ ! -z $CRON_SCHED_INCR ]] && echo "$CRON_SCHED_INCR $CRON_USER $BACKUP_CMD_INCR" >> $CRON_FILE
+	[ ! -z $CRON_SCHED_INCR ] && echo "$CRON_SCHED_INCR $CRON_USER $BACKUP_CMD_INCR" >> $CRON_FILE
 	chmod 0644 $CRON_FILE
 
 	# Save the relevant environment variables, as cron jobs do not have access to the ones set by Docker.
@@ -30,7 +30,7 @@ _main() {
 	printenv | grep -E "(MYSQL|BACKUP)" | grep -v ROOT >> etc/environment
 
 	# If requested, execute immediately a full backup.
-	if [[ $BACKUP_IMMEDIATE = "true" ]]; then
+	if [ $BACKUP_IMMEDIATE = "true" ]; then
 		bash -c "$BACKUP_CMD_FULL" >/dev/null
 	fi
 
