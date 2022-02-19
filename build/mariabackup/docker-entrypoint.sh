@@ -25,7 +25,7 @@ _main() {
 	[ ! -z $CRON_SCHED_INCR ] && echo "$CRON_SCHED_INCR $CRON_USER $BACKUP_CMD_INCR" >> $CRON_FILE
 	chmod 0644 $CRON_FILE
 
-	# Save the relevant environment variables, as cron jobs do not have access to the ones set by Docker.
+	# Save the relevant environment variables, as the scheduled jobs do not have access to the ones set by Docker.
 	# https://stackoverflow.com/questions/27771781/how-can-i-access-docker-set-environment-variables-from-a-cron-job
 	printenv | grep -E "(MYSQL|BACKUP)" | grep -v ROOT >> etc/environment
 
@@ -34,7 +34,7 @@ _main() {
 		bash -c "$BACKUP_CMD_FULL" >/dev/null
 	fi
 
-	# Keep cron in the foreground, so that the Docker image continues running.
+	# Keep the cron scheduler in the foreground, so that the Docker image continues running.
 	cron -f
 }
 
