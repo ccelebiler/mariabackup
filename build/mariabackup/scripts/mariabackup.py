@@ -53,8 +53,7 @@ class MariaDbBackup():
         proc = subprocess.run(*args, capture_output=True, **kwargs)
         if proc.returncode:
             self.logger.error(proc.stderr.decode("utf-8"))
-            return False, proc
-        return True, proc
+        return proc.returncode == 0, proc
 
     def __backup_dirs(self, root_dir):
         prog = re.compile(self.__backup_name_pattern)
