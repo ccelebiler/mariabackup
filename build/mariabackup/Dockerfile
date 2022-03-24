@@ -10,12 +10,12 @@ RUN set -ex; \
 # Install the backup provided by MariaDB.
 # https://mariadb.com/kb/en/mariabackup-overview/
 # Note: The following commands are derived from the official image for MariaDB.
-# https://github.com/MariaDB/mariadb-docker/blob/master/10.6/Dockerfile
-ARG MARIADB_VERSION=1:10.6.5+maria~focal
+# https://github.com/MariaDB/mariadb-docker/blob/master/10.7/Dockerfile
+ARG MARIADB_VERSION=1:10.7.3+maria~focal
 ENV MARIADB_VERSION $MARIADB_VERSION
-ARG REPOSITORY="http://archive.mariadb.org/mariadb-10.6.5/repo/ubuntu/ focal main"
+ARG REPOSITORY="http://archive.mariadb.org/mariadb-10.7.3/repo/ubuntu/ focal main"
 
-RUN set -e; \
+RUN set -e;\
 	echo "deb ${REPOSITORY}" > /etc/apt/sources.list.d/mariadb.list; \
 	{ \
 		echo 'Package: *'; \

@@ -3,7 +3,7 @@ version: "3"
 services:
   mariabackup:
     build: ./build/mariabackup
-    image: mariabackup:10.6.5
+    image: mariabackup:10.7.3
     container_name: mariabackup
     env_file: .env
     environment:
