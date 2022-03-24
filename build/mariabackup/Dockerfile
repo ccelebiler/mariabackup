@@ -15,7 +15,7 @@ ARG MARIADB_VERSION=1:10.7.3+maria~focal
 ENV MARIADB_VERSION $MARIADB_VERSION
 ARG REPOSITORY="http://archive.mariadb.org/mariadb-10.7.3/repo/ubuntu/ focal main"
 
-RUN set -e;\
+RUN set -e; \
 	echo "deb ${REPOSITORY}" > /etc/apt/sources.list.d/mariadb.list; \
 	{ \
 		echo 'Package: *'; \
