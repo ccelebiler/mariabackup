@@ -24,7 +24,7 @@ services:
         tag: '{{.DaemonName}}.{{.Name}}'
     networks:
       - app-network
-    restart: unless-stopped
+    restart: always
 
 volumes:
   mysql-data:
